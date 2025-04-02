@@ -1,13 +1,13 @@
 import UIKit
 
-class CategoryHeaderView: UICollectionReusableView {
-    
+final class CategoryHeaderView: UICollectionReusableView {
+
     // MARK: - Static Properties
     static let identifier = "CategoryHeaderView"
     
     // MARK: - Public Properties
-    let titleLabel = UILabel()
-    
+    private let titleLabel = UILabel()
+
     // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -27,5 +27,10 @@ class CategoryHeaderView: UICollectionReusableView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Public Methods
+    func setTitle(_ title: String) {
+        self.titleLabel.text = title
     }
 }

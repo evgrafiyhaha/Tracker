@@ -19,51 +19,15 @@ final class UserTrackersService: UserTrackersServiceProtocol {
     weak var delegate: UserTrackersServiceDelegate?
     
     lazy var categories: [TrackerCategory] = categoriesSource
-    lazy var completedTrackers: [TrackerRecord] = [TrackerRecord(trackerId: trackers[0].id, date: Date()),
-                                                   TrackerRecord(trackerId: trackers2[1].id, date: Date())]
+    lazy var completedTrackers: [TrackerRecord] = []
     
     // MARK: - Private Properties
-    private let trackers: [Tracker] = [Tracker(id: UUID(),
-                                               name: "Поливать растения",
-                                               color: .selection5,
-                                               emoji: "❤️",
-                                               schedule: [.Friday,.Monday])
-    ]
-    private let trackers2: [Tracker] = [Tracker(id: UUID(),
-                                                name: "Кошка заслонила камеру на созвоне",
-                                                color: .selection2,
-                                                emoji: "😻",
-                                                schedule: [.Monday]),
-                                        Tracker(id: UUID(),
-                                                name: "Бабушка прислала открытку в вотсапе",
-                                                color: .selection1,
-                                                emoji: "🌺",
-                                                schedule: [.Saturday]),
-                                        Tracker(id: UUID(),
-                                                name: "Свидания в апреле",
-                                                color: .selection14,
-                                                emoji: "❤️",
-                                                schedule: [.Thursday,.Monday])
-    ]
-    private let trackers3: [Tracker] = [Tracker(id: UUID(),
-                                                name: "Хорошее настроение",
-                                                color: .selection16,
-                                                emoji: "🙂",
-                                                schedule: [.Sunday]),
-                                        Tracker(id: UUID(),
-                                                name: "Легкая тревожность",
-                                                color: .selection8,
-                                                emoji: "😪",
-                                                schedule: [.Friday]),
-    ]
-    private lazy var categoriesSource: [TrackerCategory] = [TrackerCategory(name: "Домашний уют", trackers: trackers),
-                                                            TrackerCategory(name: "Радостные мелочи", trackers: trackers2),
-                                                            TrackerCategory(name: "Самочувствие", trackers: trackers3),
-                                                            TrackerCategory(name: "имя", trackers: [])
-    ]//обращения к categoriesSource в следующих спринтах заменю обращением к бд, пока тут моковые данные
+
+    private lazy var categoriesSource: [TrackerCategory] = []
     
     // MARK: - Public Methods
     func addCategory(_ category: TrackerCategory) {
+        if categoriesSource.contains(where: { $0.name == category.name }) { return }
         categoriesSource.append(category)
     }
 
@@ -72,6 +36,7 @@ final class UserTrackersService: UserTrackersServiceProtocol {
     }
 
     func addTracker(tracker: Tracker, to category: TrackerCategory) {
+        addCategory(category)
         if let categoryIndex = categoriesSource.firstIndex(where: { $0.name == category.name }) {
             let category = categoriesSource[categoryIndex]
             let updatedCategory = TrackerCategory(name: category.name, trackers: category.trackers + [tracker])

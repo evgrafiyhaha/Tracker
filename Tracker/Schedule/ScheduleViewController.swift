@@ -73,7 +73,8 @@ final class ScheduleViewController: UIViewController {
         }
     }
 
-    @objc private func doneTapped() {
+    @objc
+    private func doneTapped() {
         delegate?.didSelectDays(selectedDays)
         self.dismiss(animated: true)
     }

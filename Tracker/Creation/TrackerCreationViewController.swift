@@ -47,8 +47,14 @@ final class TrackerCreationViewController: UIViewController {
         textField.backgroundColor = .ypBackground
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .done
+        textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         view.addSubview(textField)
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(tapGesture)
         return textField
     }()
 
@@ -75,13 +81,9 @@ final class TrackerCreationViewController: UIViewController {
 
     // MARK: - Private Methods
     private func createButtonAvailabilityCheck() {
-        if trackerNameTextField.hasText && category != nil && !schedule.isEmpty {
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        let isInputValid = trackerNameTextField.hasText && category != nil
+        createButton.isEnabled = isInputValid
+        createButton.backgroundColor = isInputValid ? .ypBlack : .ypGray
     }
 
     private func setupConstraints() {
@@ -114,32 +116,7 @@ final class TrackerCreationViewController: UIViewController {
 
         ])
     }
-
-    @objc private func cancelTapped() {
-        self.dismiss(animated: true)
-    }
-
-    @objc private func createTapped() {
-        guard
-            let category,
-            let emoji,
-            !schedule.isEmpty,
-            let color,
-            let name = trackerNameTextField.text,
-            !name.isEmpty
-        else {
-            self.dismiss(animated: true)
-            return
-        }
-
-        delegate?.didCreateTracker(name: name, category: category, emoji: emoji, color: color, schedule: schedule)
-        presentingViewController?.presentingViewController?.dismiss(animated: true)
-    }
-
-    @objc private func textFieldDidChange() {
-        createButtonAvailabilityCheck()
-    }
-
+    
     private func getScheduleSubtitle() -> String {
         if schedule.count == 7 {
             return "Каждый день"
@@ -160,6 +137,39 @@ final class TrackerCreationViewController: UIViewController {
         } else {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
+    }
+
+    @objc
+    private func cancelTapped() {
+        self.dismiss(animated: true)
+    }
+
+    @objc
+    private func createTapped() {
+        guard
+            let category,
+            let emoji,
+            !schedule.isEmpty,
+            let color,
+            let name = trackerNameTextField.text,
+            !name.isEmpty
+        else {
+            self.dismiss(animated: true)
+            return
+        }
+
+        delegate?.didCreateTracker(name: name, category: category, emoji: emoji, color: color, schedule: schedule)
+        presentingViewController?.presentingViewController?.dismiss(animated: true)
+    }
+
+    @objc
+    private func textFieldDidChange() {
+        createButtonAvailabilityCheck()
+    }
+
+    @objc
+    private func hideKeyboard() {
+        self.view.endEditing(true)
     }
 }
 
@@ -214,5 +224,13 @@ extension TrackerCreationViewController: ScheduleViewControllerDelegate {
         schedule = days
         createButtonAvailabilityCheck()
         tableView.reloadData()
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackerCreationViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

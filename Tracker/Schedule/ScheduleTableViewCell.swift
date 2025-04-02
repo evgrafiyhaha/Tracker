@@ -64,7 +64,8 @@ final class ScheduleTableViewCell: UITableViewCell {
         ])
     }
     
-    @objc private func switchChanged() {
+    @objc
+    private func switchChanged() {
         delegate?.switchTableViewCell(titleLabel.text, didChangeValue: toggleSwitch.isOn)
     }
 }

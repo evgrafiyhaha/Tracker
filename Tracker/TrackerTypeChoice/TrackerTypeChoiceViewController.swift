@@ -76,7 +76,8 @@ final class TrackerTypeChoiceViewController: UIViewController {
         present(navController, animated: true)
     }
 
-    @objc private func didTapHabitButton() {
+    @objc
+    private func didTapHabitButton() {
         guard let delegate = self.delegate else { return }
 
         let viewController = TrackerCreationViewController()
@@ -84,7 +85,8 @@ final class TrackerTypeChoiceViewController: UIViewController {
         present(viewController: viewController)
     }
 
-    @objc private func didTapEventButton() {
+    @objc
+    private func didTapEventButton() {
         guard let delegate = self.delegate else { return }
 
         let viewController = EventCreationViewController()

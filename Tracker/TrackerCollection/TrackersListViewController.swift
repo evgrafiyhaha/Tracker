@@ -69,6 +69,10 @@ final class TrackersListViewController: UIViewController {
         searchBar.setValue("Отменить", forKey: "cancelButtonText")
         view.addSubview(searchBar)
         searchBar.delegate = self
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(tapGesture)
         return searchBar
     }()
     
@@ -97,11 +101,7 @@ final class TrackersListViewController: UIViewController {
         setupNavBarItems()
         setupConstraints()
         
-        if userTrackersService.getAllTrackersCount() > 0 {
-            emptyView.isHidden = true
-        } else {
-            emptyView.isHidden = false
-        }
+        emptyView.isHidden = userTrackersService.getAllTrackersCount() > 0
     }
     
     // MARK: - Private Methods
@@ -184,18 +184,25 @@ final class TrackersListViewController: UIViewController {
         emptyView.isHidden = false
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+    @objc
+    private func datePickerValueChanged(_ sender: UIDatePicker) {
         guard let selectedDay = sender.date.dayOfWeek(calendar: calendar) else { return }
         currentDate = sender.date
         setTrackersForFayOfWeek(selectedDay)
     }
     
-    @objc private func plusButtonTapped() {
+    @objc
+    private func plusButtonTapped() {
         let viewController = TrackerTypeChoiceViewController()
         viewController.delegate = self
         let navController = UINavigationController(rootViewController: viewController)
         navController.modalPresentationStyle = .formSheet
         present(navController, animated: true)
+    }
+    
+    @objc
+    private func hideKeyboard() {
+        self.view.endEditing(true)
     }
 }
 
@@ -238,7 +245,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
             return UICollectionReusableView()
         }
         
-        headerView.titleLabel.text = userTrackersService.categories[indexPath.section].name
+        headerView.setTitle(userTrackersService.categories[indexPath.section].name)
         return headerView
     }
 }
@@ -287,9 +294,7 @@ extension TrackersListViewController: CreationDelegate {
 // MARK: - UserTrackersServiceDelegate
 extension TrackersListViewController: UserTrackersServiceDelegate {
     func reloadData() {
-        if userTrackersService.getAllTrackersCount() > 0 {
-            emptyView.isHidden = true
-        }
+        emptyView.isHidden = userTrackersService.getAllTrackersCount() > 0
         collectionView.reloadData()
     }
 }
@@ -329,4 +334,9 @@ extension TrackersListViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
         searchBar.showsCancelButton = false
     }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+
 }

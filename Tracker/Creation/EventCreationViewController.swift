@@ -45,7 +45,13 @@ final class EventCreationViewController: UIViewController {
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        textField.returnKeyType = .done
+        textField.delegate = self
         view.addSubview(textField)
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(tapGesture)
         return textField
     }()
 
@@ -73,13 +79,9 @@ final class EventCreationViewController: UIViewController {
 
     // MARK: - Private Methods
     private func createButtonAvailabilityCheck() {
-        if trackerNameTextField.hasText && category != nil {
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-        }
+        let isInputValid = trackerNameTextField.hasText && category != nil
+        createButton.isEnabled = isInputValid
+        createButton.backgroundColor = isInputValid ? .ypBlack : .ypGray
     }
 
     private func setupConstraints() {
@@ -113,11 +115,13 @@ final class EventCreationViewController: UIViewController {
         ])
     }
 
-    @objc private func cancelTapped() {
+    @objc
+    private func cancelTapped() {
         self.dismiss(animated: true)
     }
 
-    @objc private func createTapped() {
+    @objc
+    private func createTapped() {
         guard
             let category,
             let emoji,
@@ -133,8 +137,14 @@ final class EventCreationViewController: UIViewController {
         presentingViewController?.presentingViewController?.dismiss(animated: true)
     }
 
-    @objc private func textFieldDidChange() {
+    @objc
+    private func textFieldDidChange() {
         createButtonAvailabilityCheck()
+    }
+
+    @objc
+    private func hideKeyboard() {
+        self.view.endEditing(true)
     }
 }
 
@@ -166,5 +176,13 @@ extension EventCreationViewController: UITableViewDelegate, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // TODO: Реализовать переход к экрану выбора категорий
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension EventCreationViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

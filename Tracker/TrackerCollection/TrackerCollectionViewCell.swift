@@ -156,7 +156,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    @objc private func onButtonTapped() {
+    @objc
+    private func onButtonTapped() {
         delegate?.updateQuantity(cell: self)
     }
 }
