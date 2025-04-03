@@ -81,7 +81,7 @@ final class TrackerCreationViewController: UIViewController {
 
     // MARK: - Private Methods
     private func createButtonAvailabilityCheck() {
-        let isInputValid = trackerNameTextField.hasText && category != nil
+        let isInputValid = trackerNameTextField.hasText && category != nil && schedule.isEmpty == false
         createButton.isEnabled = isInputValid
         createButton.backgroundColor = isInputValid ? .ypBlack : .ypGray
     }

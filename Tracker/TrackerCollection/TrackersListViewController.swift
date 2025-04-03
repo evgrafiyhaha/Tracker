@@ -228,7 +228,7 @@ extension TrackersListViewController: UICollectionViewDataSource {
             record.trackerId == tracker.id && calendar.isDate(record.date, inSameDayAs: currentDate)
         }
         cell.delegate = self
-        cell.setupCell(name: tracker.name, color: tracker.color, emoji: tracker.emoji, days: days,trackerID: tracker.id, isCompletedToday: isCompletedAtPickedDay)
+        cell.setupCell(tracker: tracker, days: days, isCompletedToday: isCompletedAtPickedDay)
         return cell
     }
     
@@ -302,17 +302,23 @@ extension TrackersListViewController: UserTrackersServiceDelegate {
 // MARK: - TrackerCollectionViewCellDelegate
 extension TrackersListViewController: TrackerCollectionViewCellDelegate {
     func updateQuantity(cell: TrackerCollectionViewCell) {
-        guard let trackerID = cell.trackerID else {return}
-        
+        guard
+            let trackerID = cell.trackerID,
+            let schedule = cell.schedule,
+            let weekDay = currentDate.dayOfWeek(calendar: calendar)
+        else {return}
+
         let isCompletedAtPickedDay = userTrackersService.completedTrackers.contains { record in
             record.trackerId == trackerID && calendar.isDate(record.date, inSameDayAs: currentDate)
         }
         let isSameOrEarlierDay = calendar.compare(currentDate, to: today, toGranularity: .day) != .orderedDescending
-        
-        if isSameOrEarlierDay && !isCompletedAtPickedDay {
+        let isSameWeekDay = schedule.isEmpty || schedule.contains(weekDay)
+        // пользователь может отметить трекер выполненным только если сегодня тот же день недели
+
+        if isSameOrEarlierDay && !isCompletedAtPickedDay && isSameWeekDay {
             userTrackersService.addTrackerRecord(TrackerRecord(trackerId: trackerID, date: currentDate))
             cell.updateDays(days: userTrackersService.completedTrackers.filter() {$0.trackerId == trackerID}.count, isAddition: true)
-        } else if isCompletedAtPickedDay {
+        } else if isCompletedAtPickedDay && isSameWeekDay {
             userTrackersService.removeTrackerRecord(TrackerRecord(trackerId: trackerID, date: currentDate), forDate: currentDate, using: calendar)
             cell.updateDays(days: userTrackersService.completedTrackers.filter() {$0.trackerId == trackerID}.count, isAddition: false)
         }

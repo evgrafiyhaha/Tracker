@@ -9,8 +9,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     weak var delegate: TrackerCollectionViewCellDelegate?
     
     // MARK: - Private Properties
-    private(set) var trackerID:UUID?
-    
+    private(set) var trackerID: UUID?
+    private(set) var schedule: Set<Day>?
+
     private lazy var quantityView: UIView = {
         var view = UIView()
         contentView.addSubview(view)
@@ -128,16 +129,17 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public Methods
-    func setupCell(name: String, color: UIColor, emoji: Character, days: Int,trackerID: UUID, isCompletedToday: Bool) {
-        plusButton.backgroundColor = color
-        cardView.backgroundColor = color
-        titleLabel.text = name
-        emojiLabel.text = String(emoji)
-        self.trackerID = trackerID
+    func setupCell(tracker: Tracker, days: Int, isCompletedToday: Bool) {
+        plusButton.backgroundColor = tracker.color
+        cardView.backgroundColor = tracker.color
+        titleLabel.text = tracker.name
+        emojiLabel.text = String(tracker.emoji)
+        self.trackerID = tracker.id
+        self.schedule = tracker.schedule
         daysLabel.text = days.days()
         updateCompletionStatus(isCompletedToday: isCompletedToday)
     }
-    
+
     func updateDays(days: Int, isAddition: Bool) {
         daysLabel.text = days.days()
         
