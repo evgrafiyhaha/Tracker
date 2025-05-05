@@ -17,7 +17,7 @@ protocol UserTrackersServiceDelegate: AnyObject {
 final class TrackersListViewController: UIViewController {
     
     // MARK: - Private Properties
-    private var userTrackersService: UserTrackersServiceProtocol = UserTrackersService()
+    private var userTrackersService: UserTrackersServiceProtocol = TrackerService()
     
     private lazy var cellWidth = ceil((UIScreen.main.bounds.width - sideInset * 2 - 10)/2)
     private let cellHeight: CGFloat = 148
@@ -183,7 +183,7 @@ final class TrackersListViewController: UIViewController {
         }
         emptyView.isHidden = false
     }
-    
+
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
         guard let selectedDay = sender.date.dayOfWeek(calendar: calendar) else { return }
@@ -344,5 +344,4 @@ extension TrackersListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
     }
-
 }

@@ -5,7 +5,7 @@ final class CategoryHeaderView: UICollectionReusableView {
     // MARK: - Static Properties
     static let identifier = "CategoryHeaderView"
     
-    // MARK: - Public Properties
+    // MARK: - Private Properties
     private let titleLabel = UILabel()
 
     // MARK: - Initializers
