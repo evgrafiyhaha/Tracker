@@ -12,7 +12,6 @@ final class EmojiCollectionViewCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
-        emojiView.addSubview(label)
         return label
     }()
 
@@ -24,10 +23,39 @@ final class EmojiCollectionViewCell: UICollectionViewCell {
         return view
     }()
 
-    // MARK: - Initializers
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupSubviews()
+        setupConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Public Methods
+    func setupEmoji(_ emoji: Character) {
+        self.emoji = emoji
+        emojiLabel.text = String(emoji)
+    }
+
+    func select() {
+        emojiView.backgroundColor = .ypLightGray
+    }
+
+    func deselect() {
+        emojiView.backgroundColor = .clear
+    }
+
+    // MARK: - Private Methods
+    private func setupSubviews() {
         contentView.backgroundColor = .clear
+        contentView.addSubview(emojiView)
+        emojiView.addSubview(emojiLabel)
+    }
+
+    private func setupConstraints() {
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
         emojiView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -41,24 +69,5 @@ final class EmojiCollectionViewCell: UICollectionViewCell {
             emojiView.topAnchor.constraint(equalTo: contentView.topAnchor),
             emojiView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Public Methods
-    func setupEmoji(_ emoji: Character) {
-        emojiLabel.text = String(emoji)
-        self.emoji = emoji
-    }
-
-    func select() {
-        emojiView.backgroundColor = .ypLightGray
-    }
-
-    func deselect() {
-        emojiView.backgroundColor = .clear
     }
 }

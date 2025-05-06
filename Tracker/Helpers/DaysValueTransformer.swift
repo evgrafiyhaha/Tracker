@@ -22,8 +22,12 @@ final class DaysValueTransformer: ValueTransformer {
     }
 
     override func reverseTransformedValue(_ value: Any?) -> Any? {
-        guard let data = value as? NSData else { return nil }
-        guard let decodedArray = try? JSONDecoder().decode([Day].self, from: data as Data) else { return nil }
-        return Set(decodedArray)
+        guard
+            let data = value as? Data,
+            let decoded = try? JSONDecoder().decode([Day].self, from: data)
+        else {
+            return nil
+        }
+        return Set(decoded)
     }
 }

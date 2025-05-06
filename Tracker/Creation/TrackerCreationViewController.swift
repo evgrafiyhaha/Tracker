@@ -13,7 +13,7 @@ final class TrackerCreationViewController: UIViewController {
     private var emoji: Character?
     private var color: UIColor?
     
-    private let emojiVariants: [Character] = Constants.emoji
+    private let emojiVariants: [Character] = Constants.emojis
     private let colorVariants: [UIColor] = Constants.colors
 
     private let scrollView = UIScrollView()
@@ -26,7 +26,6 @@ final class TrackerCreationViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
         button.layer.cornerRadius = 16
-        scrollView.addSubview(button)
         return button
     }()
     
@@ -41,7 +40,6 @@ final class TrackerCreationViewController: UIViewController {
         button.layer.borderWidth = 1
         button.layer.borderColor = color.cgColor
         button.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-        scrollView.addSubview(button)
         return button
     }()
     
@@ -54,7 +52,6 @@ final class TrackerCreationViewController: UIViewController {
         textField.returnKeyType = .done
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        scrollView.addSubview(textField)
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(hideKeyboard))
         tapGesture.cancelsTouchesInView = false
@@ -65,7 +62,6 @@ final class TrackerCreationViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .clear
-        scrollView.addSubview(tableView)
         tableView.layer.cornerRadius = 16
         tableView.delegate = self
         tableView.dataSource = self
@@ -82,7 +78,6 @@ final class TrackerCreationViewController: UIViewController {
         collectionView.delegate = self
         collectionView.isScrollEnabled = false
         collectionView.register(EmojiCollectionViewCell.self, forCellWithReuseIdentifier: EmojiCollectionViewCell.identifier)
-        scrollView.addSubview(collectionView)
         return collectionView
     }()
     
@@ -92,7 +87,6 @@ final class TrackerCreationViewController: UIViewController {
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlack
         label.text = "Emoji"
-        scrollView.addSubview(label)
         return label
     }()
     
@@ -104,7 +98,6 @@ final class TrackerCreationViewController: UIViewController {
         collectionView.delegate = self
         collectionView.isScrollEnabled = false
         collectionView.register(ColorCollectionViewCell.self, forCellWithReuseIdentifier: ColorCollectionViewCell.identifier)
-        scrollView.addSubview(collectionView)
         return collectionView
     }()
     
@@ -114,7 +107,6 @@ final class TrackerCreationViewController: UIViewController {
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlack
         label.text = "Цвет"
-        scrollView.addSubview(label)
         return label
     }()
     
@@ -124,6 +116,7 @@ final class TrackerCreationViewController: UIViewController {
         view.backgroundColor = .ypWhite
         navigationController?.navigationBar.tintColor = .ypBlack
         navigationItem.title = "Новая привычка"
+        setupSubviews()
         setupConstraints()
     }
     
@@ -133,7 +126,19 @@ final class TrackerCreationViewController: UIViewController {
         createButton.isEnabled = isInputValid
         createButton.backgroundColor = isInputValid ? .ypBlack : .ypGray
     }
-    
+
+    private func setupSubviews() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(createButton)
+        scrollView.addSubview(cancelButton)
+        scrollView.addSubview(trackerNameTextField)
+        scrollView.addSubview(tableView)
+        scrollView.addSubview(emojiCollectionView)
+        scrollView.addSubview(colorCollectionView)
+        scrollView.addSubview(emojiTitleLabel)
+        scrollView.addSubview(colorTitleLabel)
+    }
+
     private func setupConstraints() {
         let contentGuide = scrollView.contentLayoutGuide
         let frameGuide = scrollView.frameLayoutGuide
@@ -147,8 +152,6 @@ final class TrackerCreationViewController: UIViewController {
         emojiCollectionView.translatesAutoresizingMaskIntoConstraints = false
         colorTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         colorCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(scrollView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),

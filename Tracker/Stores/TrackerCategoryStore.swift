@@ -1,72 +1,69 @@
-import CoreData
 import UIKit
+
+protocol TrackerCategoryStorable {
+    var categories: [TrackerCategory] { get }
+    func add(_ category: TrackerCategory) throws
+    func fetchCategory(by name: String) throws -> TrackerCategory?
+}
 
 enum TrackerCategoryStoreError: Error {
     case decodingError
 }
 
-final class TrackerCategoryStore: NSObject {
+final class TrackerCategoryStore: NSObject, TrackerCategoryStorable {
 
     // MARK: - Public Properties
-    var catigories: [TrackerCategory] {
+    var categories: [TrackerCategory] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.compactMap { try? category(from: $0) }
     }
 
     // MARK: - Private Properties
-    private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>
-
-    // MARK: - Initializers
-    init(context: NSManagedObjectContext) {
-        self.context = context
-
+    private let coreDataManager = CoreDataManager.shared
+    private lazy var fetchedResultsController = {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCategoryCoreData.name, ascending: true)]
-        fetchRequest.relationshipKeyPathsForPrefetching = ["trackers"]
-
-        let controller = NSFetchedResultsController(
+        return coreDataManager.fetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: context,
-            sectionNameKeyPath: nil,
-            cacheName: nil
+            sortDescriptors: [NSSortDescriptor(keyPath: \TrackerCategoryCoreData.name, ascending: true)],
+            prefetchRelationships: ["trackers"]
         )
-        self.fetchedResultsController = controller
+    }()
 
+    // MARK: - Init
+    override init() {
         super.init()
         do {
-            try controller.performFetch()
+            try fetchedResultsController.performFetch()
         } catch {
             print("[TrackerCategoryStore.init]: Не удалось выполнить fetch — \(error.localizedDescription)")
         }
     }
 
     // MARK: - Public Methods
-    func addNewCategory(_ category: TrackerCategory) {
-        do {
-            if let _ = try fetchCategoryCoreData(by: category) {
-                print("[TrackerCategoryStore.addNewCategory]: Категория \"\(category.name)\" уже существует")
-                return
-            }
-
-            let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
-            trackerCategoryCoreData.name = category.name
-
-            saveContext()
-            try? fetchedResultsController.performFetch()
-
-        } catch {
-            print("[TrackerCategoryStore.addNewCategory]: Ошибка при поиске категории — \(error.localizedDescription)")
+    func add(_ category: TrackerCategory) throws {
+        if try fetchCategory(by: category.name) != nil {
+            print("[TrackerCategoryStore.add]: Категория \"\(category.name)\" уже существует")
+            return
         }
+
+        let trackerCategoryCoreData = TrackerCategoryCoreData(context: coreDataManager.context)
+        trackerCategoryCoreData.name = category.name
+
+        coreDataManager.saveContext()
+        try? fetchedResultsController.performFetch()
     }
 
-    func fetchCategoryCoreData(by category: TrackerCategory) throws -> TrackerCategoryCoreData? {
-        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", category.name)
-        fetchRequest.fetchLimit = 1
+    func fetchCategory(by name: String) throws -> TrackerCategory? {
+        let predicate = NSPredicate(format: "name == %@", name)
+        guard let coreDataObject = try CoreDataManager.shared.fetchFirstObject(
+            ofType: TrackerCategoryCoreData.self,
+            predicate: predicate
+        ) else {
+            return nil
+        }
 
-        let results = try context.fetch(fetchRequest)
-        return results.first
+        let fetchedCategory = try category(from: coreDataObject)
+        return fetchedCategory
     }
 
     // MARK: - Private Methods
@@ -104,17 +101,5 @@ final class TrackerCategoryStore: NSObject {
         }
 
         return TrackerCategory(name: name, trackers: trackers)
-    }
-
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-                print("[TrackerCategoryStore.saveContext]: Контекст сохранён.")
-            } catch {
-                context.rollback()
-                print("[TrackerCategoryStore.saveContext]: Ошибка при сохранении — \(error.localizedDescription)")
-            }
-        }
     }
 }

@@ -1,75 +1,65 @@
-import CoreData
 import UIKit
+
+protocol TrackerStorable {
+    var trackers: [Tracker] { get }
+    func add(_ tracker: Tracker, to category: TrackerCategory) throws
+}
 
 enum TrackerStoreError: Error {
     case decodingError
+    case categoryNotFound(name: String)
 }
 
-final class TrackerStore: NSObject {
+final class TrackerStore: NSObject, TrackerStorable {
 
     // MARK: - Public Properties
     var trackers: [Tracker] {
-        guard let objects = fetchedResultsController.fetchedObjects else {
-            print("[TrackerStore.trackers]: Ошибка — fetchedObjects пуст")
-            return []
-        }
+        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.compactMap { try? tracker(from: $0) }
     }
 
     // MARK: - Private Properties
-    private let context: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
-
-    // MARK: - Initializers
-    init(context: NSManagedObjectContext) {
-        self.context = context
-
+    private let coreDataManager = CoreDataManager.shared
+    private lazy var fetchedResultsController = {
         let fetchRequest = TrackerCoreData.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)]
-
-        let controller = NSFetchedResultsController(
+        return coreDataManager.fetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: context,
-            sectionNameKeyPath: nil,
-            cacheName: nil
+            sortDescriptors: [NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)]
         )
-        self.fetchedResultsController = controller
+    }()
 
+    // MARK: - Init
+    override init() {
         super.init()
         do {
-            try controller.performFetch()
+            try fetchedResultsController.performFetch()
         } catch {
             print("[TrackerStore.init]: Ошибка при выполнении fetch — \(error.localizedDescription)")
         }
     }
 
     // MARK: - Public Methods
-    func addNewTracker(_ tracker: Tracker, to category: TrackerCategoryCoreData) {
-        let trackerCoreData = TrackerCoreData(context: context)
+    func add(_ tracker: Tracker, to category: TrackerCategory) throws {
+        let predicate = NSPredicate(format: "name == %@", category.name)
+        guard
+            let categoryCoreData = try? coreDataManager.fetchFirstObject(
+                ofType: TrackerCategoryCoreData.self,
+                predicate: predicate)
+        else {
+            print("[TrackerStore.add]: Ошибка при поиске категории — \(category.name)")
+            throw TrackerStoreError.categoryNotFound(name: category.name)
+        }
+        let trackerCoreData = TrackerCoreData(context: coreDataManager.context)
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
         trackerCoreData.emoji = String(tracker.emoji)
         trackerCoreData.color = tracker.color
         trackerCoreData.setValue(tracker.schedule, forKey: "schedule")
-        trackerCoreData.category = category
+        trackerCoreData.category = categoryCoreData
 
-        category.addToTrackers(trackerCoreData)
+        categoryCoreData.addToTrackers(trackerCoreData)
 
-        saveContext()
-    }
-
-    func fetchTrackerCoreData(by trackerId: UUID) throws -> TrackerCoreData? {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
-        fetchRequest.fetchLimit = 1
-
-        do {
-            let results = try context.fetch(fetchRequest)
-            return results.first
-        } catch {
-            print("[TrackerStore.fetchTrackerCoreData]: Ошибка при выполнении fetch — \(error.localizedDescription)")
-            throw error
-        }
+        coreDataManager.saveContext()
     }
 
     // MARK: - Private Methods
@@ -100,17 +90,5 @@ final class TrackerStore: NSObject {
             emoji: emoji,
             schedule: scheduleSet
         )
-    }
-
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-                print("[TrackerStore.saveContext]: Контекст сохранён.")
-            } catch {
-                context.rollback()
-                print("[TrackerStore.saveContext]: Ошибка при сохранении — \(error.localizedDescription)")
-            }
-        }
     }
 }

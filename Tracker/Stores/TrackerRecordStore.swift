@@ -1,18 +1,73 @@
-import CoreData
+import Foundation
+
+protocol TrackerRecordStorable {
+    var trackerRecords: [TrackerRecord] { get }
+    func add(_ trackerRecord: TrackerRecord) throws
+    func delete(with trackerId: UUID, on date: Date, using calendar: Calendar)
+}
 
 enum TrackerRecordStoreError: Error {
     case decodingError
+    case trackerNotFound
 }
 
-final class TrackerRecordStore {
+final class TrackerRecordStore: TrackerRecordStorable {
 
-    // MARK: - Public Properties
-    func fetchTrackerRecords() {
-        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+    // MARK: - Private Properties
+    private let coreDataManager = CoreDataManager.shared
+    private(set) var trackerRecords: [TrackerRecord] = []
+
+    // MARK: - Init
+    init() {
+        fetchTrackerRecords()
+    }
+
+    // MARK: - Public Methods
+    func add(_ trackerRecord: TrackerRecord) throws {
+        let predicate = NSPredicate(format: "id == %@", trackerRecord.trackerId as CVarArg)
+        guard let trackerCoreData = try? coreDataManager.fetchFirstObject(ofType: TrackerCoreData.self, predicate: predicate) else {
+            print("[TrackerRecordStore.add]: Не удалось удалить трекер")
+            throw TrackerRecordStoreError.trackerNotFound
+        }
+
+        let trackerRecordCoreData = TrackerRecordCoreData(context: coreDataManager.context)
+        trackerRecordCoreData.date = trackerRecord.date
+        trackerRecordCoreData.tracker = trackerCoreData
+
+        coreDataManager.saveContext()
+        fetchTrackerRecords()
+    }
+
+    func delete(with trackerId: UUID, on date: Date, using calendar: Calendar) {
+        let dayStart = calendar.startOfDay(for: date)
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return }
+
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "tracker.id == %@", trackerId as CVarArg),
+            NSPredicate(format: "date >= %@ AND date < %@", dayStart as NSDate, dayEnd as NSDate)
+        ])
+
+        do {
+            if let record = try coreDataManager.fetchFirstObject(
+                ofType: TrackerRecordCoreData.self,
+                predicate: predicate
+            ) {
+                coreDataManager.context.delete(record)
+                coreDataManager.saveContext()
+            }
+            fetchTrackerRecords()
+        } catch {
+            print("[TrackerRecordStore.delete]: Не удалось удалить запись — \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Private Methods
+    private func fetchTrackerRecords() {
+        let fetchRequest = TrackerRecordCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerRecordCoreData.date, ascending: true)]
 
         do {
-            let coreDataRecords = try context.fetch(fetchRequest)
+            let coreDataRecords = try coreDataManager.context.fetch(fetchRequest)
             self.trackerRecords = coreDataRecords.compactMap { try? trackerRecord(from: $0) }
         } catch {
             print("[TrackerRecordStore.fetchTrackerRecords]: Не удалось выполнить fetch — \(error.localizedDescription)")
@@ -20,45 +75,6 @@ final class TrackerRecordStore {
         }
     }
 
-    // MARK: - Private Properties
-    private let context: NSManagedObjectContext
-    private(set) var trackerRecords: [TrackerRecord] = []
-
-    // MARK: - Initializers
-    init(context: NSManagedObjectContext) {
-        self.context = context
-        fetchTrackerRecords()
-    }
-
-    // MARK: - Public Methods
-    func addNewTrackerRecord(_ trackerRecord: TrackerRecord, to tracker: TrackerCoreData) {
-        let trackerRecordCoreData = TrackerRecordCoreData(context: context)
-        trackerRecordCoreData.date = trackerRecord.date
-        trackerRecordCoreData.tracker = tracker
-
-        saveContext()
-        fetchTrackerRecords()
-    }
-
-    func deleteTrackerRecord(with trackerId: UUID, on date: Date, using calendar: Calendar) {
-        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "tracker.id == %@", trackerId as CVarArg)
-
-        do {
-            let records = try context.fetch(fetchRequest)
-            for record in records {
-                if let recordDate = record.date, calendar.isDate(recordDate, inSameDayAs: date) {
-                    context.delete(record)
-                }
-            }
-            saveContext()
-            fetchTrackerRecords()
-        } catch {
-            print("[TrackerRecordStore.deleteTrackerRecord]: Не удалось удалить запись — \(error.localizedDescription)")
-        }
-    }
-
-    // MARK: - Private Methods
     private func trackerRecord(from coreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard
             let date = coreData.date,
@@ -70,17 +86,5 @@ final class TrackerRecordStore {
         }
 
         return TrackerRecord(trackerId: trackerID, date: date)
-    }
-
-    private func saveContext() {
-        if context.hasChanges {
-            do {
-                try context.save()
-                print("[TrackerRecordStore.saveContext]: Контекст сохранён.")
-            } catch {
-                context.rollback()
-                print("[TrackerRecordStore.saveContext]: Ошибка при сохранении — \(error.localizedDescription)")
-            }
-        }
     }
 }

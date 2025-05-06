@@ -8,75 +8,84 @@ final class TrackerService: UserTrackersServiceProtocol {
     private(set) var completedTrackers: [TrackerRecord] = []
 
     // MARK: - Private Properties
-    private let trackerStore: TrackerStore
-    private let trackerCategoryStore: TrackerCategoryStore
-    private let trackerRecordStore: TrackerRecordStore
+    private let trackerStore: TrackerStorable
+    private let trackerCategoryStore: TrackerCategoryStorable
+    private let trackerRecordStore: TrackerRecordStorable
 
-    // MARK: - Initializers
+    // MARK: - Init
     init(
-        trackerStore: TrackerStore = TrackerStore(context: CoreDataManager.shared.getContext()),
-        trackerCategoryStore: TrackerCategoryStore = TrackerCategoryStore(context: CoreDataManager.shared.getContext()),
-        trackerRecordStore: TrackerRecordStore = TrackerRecordStore(context: CoreDataManager.shared.getContext())
+        trackerStore: TrackerStore = TrackerStore(),
+        trackerCategoryStore: TrackerCategoryStore = TrackerCategoryStore(),
+        trackerRecordStore: TrackerRecordStore = TrackerRecordStore()
     ) {
         self.trackerStore = trackerStore
         self.trackerCategoryStore = trackerCategoryStore
         self.trackerRecordStore = trackerRecordStore
 
         addCategory(TrackerCategory(name: "Домашний уют", trackers: []))
-        self.categories = trackerCategoryStore.catigories
+        self.categories = trackerCategoryStore.categories
         self.completedTrackers = trackerRecordStore.trackerRecords
     }
 
     // MARK: - Public Methods
-
     func addCategory(_ category: TrackerCategory) {
-        trackerCategoryStore.addNewCategory(category)
-        categories = trackerCategoryStore.catigories
+        do {
+            try trackerCategoryStore.add(category)
+            syncCategories()
+        }
+        catch {
+            print("[TrackerService.addCategory]: Не удалось добавить категорию")
+        }
     }
 
     func getAllCategories() -> [TrackerCategory] {
-        return trackerCategoryStore.catigories
+        return trackerCategoryStore.categories
     }
 
     func addTracker(tracker: Tracker, to category: TrackerCategory) {
         do {
-            guard let trackerCategoryCoreData = try trackerCategoryStore.fetchCategoryCoreData(by: category) else {
-                print("[TrackerService.addTracker]: Не удалось найти категорию с именем '\(category.name)'")
-                return
-            }
-
-            trackerStore.addNewTracker(tracker, to: trackerCategoryCoreData)
-            self.categories = trackerCategoryStore.catigories
-            delegate?.reloadData()
+            try trackerStore.add(tracker, to: category)
+            syncCategories()
+            notifyUpdate()
         } catch {
-            print("[TrackerService.addTracker]: Ошибка при получении категории — \(error)")
+            print("[TrackerService.addTracker]: Ошибка при добавлении трекера — \(error)")
         }
     }
 
     func addTrackerRecord(_ record: TrackerRecord) {
         do {
-            guard let trackerCoreData = try trackerStore.fetchTrackerCoreData(by: record.trackerId) else {
-                print("[TrackerService.addTrackerRecord]: Не найден TrackerCoreData с id: \(record.trackerId)")
-                return
-            }
-
-            trackerRecordStore.addNewTrackerRecord(record, to: trackerCoreData)
-            completedTrackers = trackerRecordStore.trackerRecords
+            try trackerRecordStore.add(record)
+            syncCompletedTrackers()
         } catch {
-            print("[TrackerService.addTrackerRecord]: Ошибка при получении TrackerCoreData — \(error)")
+            print("[TrackerService.addTrackerRecord]: Ошибка при добавлении записи — \(error)")
         }
     }
 
     func removeTrackerRecord(_ record: TrackerRecord, forDate date: Date, using calendar: Calendar) {
-        trackerRecordStore.deleteTrackerRecord(with: record.trackerId, on: date, using: calendar)
-        completedTrackers = trackerRecordStore.trackerRecords
+        trackerRecordStore.delete(with: record.trackerId, on: date, using: calendar)
+        syncCompletedTrackers()
     }
 
-    func updateDisplayedCategories(categories: [TrackerCategory]) {
+    func setFilteredCategories(_ categories: [TrackerCategory]) {
         self.categories = categories
     }
 
     func getAllTrackersCount() -> Int {
         return categories.flatMap { $0.trackers }.count
+    }
+
+    // MARK: - Private Methods
+    private func syncCategories() {
+        categories = trackerCategoryStore.categories
+    }
+
+    private func syncCompletedTrackers() {
+        completedTrackers = trackerRecordStore.trackerRecords
+    }
+
+    private func notifyUpdate() {
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.reloadData()
+        }
     }
 }

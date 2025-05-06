@@ -25,15 +25,39 @@ final class ColorCollectionViewCell: UICollectionViewCell {
         return view
     }()
 
-    // MARK: - Initializers
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.backgroundColor = .clear
+        setupSubviews()
+        setupConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
+    // MARK: - Public Methods
+    func setupColor(_ color: UIColor) {
+        colorView.backgroundColor = color
+    }
+
+    func select() {
+        borderView.backgroundColor = colorView.backgroundColor?.withAlphaComponent(0.3)
+    }
+
+    func deselect() {
+        borderView.backgroundColor = .clear
+    }
+
+    // MARK: - Private Methods
+    private func setupSubviews() {
+        contentView.backgroundColor = .clear
         contentView.addSubview(borderView)
         contentView.addSubview(whiteView)
         contentView.addSubview(colorView)
+    }
 
+    private func setupConstraints() {
         colorView.translatesAutoresizingMaskIntoConstraints = false
         borderView.translatesAutoresizingMaskIntoConstraints = false
         whiteView.translatesAutoresizingMaskIntoConstraints = false
@@ -54,22 +78,5 @@ final class ColorCollectionViewCell: UICollectionViewCell {
             borderView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             borderView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Public Methods
-    func setupColor(_ color: UIColor) {
-        colorView.backgroundColor = color
-    }
-
-    func select() {
-        borderView.backgroundColor = colorView.backgroundColor?.withAlphaComponent(0.3)
-    }
-
-    func deselect() {
-        borderView.backgroundColor = .clear
     }
 }

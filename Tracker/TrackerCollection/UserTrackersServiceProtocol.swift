@@ -9,6 +9,6 @@ protocol UserTrackersServiceProtocol {
     func addTracker(tracker: Tracker, to category: TrackerCategory)
     func addTrackerRecord(_ record: TrackerRecord)
     func removeTrackerRecord(_ record: TrackerRecord, forDate date: Date, using calendar: Calendar)
-    func updateDisplayedCategories(categories: [TrackerCategory])
+    func setFilteredCategories(_ categories: [TrackerCategory])
     func getAllTrackersCount() -> Int
 }
