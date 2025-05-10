@@ -1,6 +1,6 @@
 import UIKit
 
-protocol TrackerStorable {
+protocol TrackerStoreProtocol {
     var trackers: [Tracker] { get }
     func add(_ tracker: Tracker, to category: TrackerCategory) throws
 }
@@ -10,7 +10,7 @@ enum TrackerStoreError: Error {
     case categoryNotFound(name: String)
 }
 
-final class TrackerStore: NSObject, TrackerStorable {
+final class TrackerStore: NSObject, TrackerStoreProtocol {
 
     // MARK: - Public Properties
     var trackers: [Tracker] {
