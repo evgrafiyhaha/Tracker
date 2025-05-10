@@ -12,6 +12,9 @@ enum TrackerCategoryStoreError: Error {
 
 final class TrackerCategoryStore: NSObject, TrackerCategoryStorable {
 
+    // MARK: - Static Properties
+    static let shared = TrackerCategoryStore()
+
     // MARK: - Public Properties
     var categories: [TrackerCategory] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
@@ -30,7 +33,7 @@ final class TrackerCategoryStore: NSObject, TrackerCategoryStorable {
     }()
 
     // MARK: - Init
-    override init() {
+    private override init() {
         super.init()
         do {
             try fetchedResultsController.performFetch()

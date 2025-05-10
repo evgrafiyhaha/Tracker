@@ -15,14 +15,13 @@ final class TrackerService: UserTrackersServiceProtocol {
     // MARK: - Init
     init(
         trackerStore: TrackerStore = TrackerStore(),
-        trackerCategoryStore: TrackerCategoryStore = TrackerCategoryStore(),
+        trackerCategoryStore: TrackerCategoryStore = TrackerCategoryStore.shared,
         trackerRecordStore: TrackerRecordStore = TrackerRecordStore()
     ) {
         self.trackerStore = trackerStore
         self.trackerCategoryStore = trackerCategoryStore
         self.trackerRecordStore = trackerRecordStore
 
-        addCategory(TrackerCategory(name: "Домашний уют", trackers: []))
         self.categories = trackerCategoryStore.categories
         self.completedTrackers = trackerRecordStore.trackerRecords
     }
