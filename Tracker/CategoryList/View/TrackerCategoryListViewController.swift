@@ -77,6 +77,12 @@ final class TrackerCategoryListViewController: UIViewController {
             }
         }
 
+        viewModel?.navigateBack = { [weak self] in
+            DispatchQueue.main.async {
+                self?.dismiss(animated: true)
+            }
+        }
+
         viewModel?.categoryStateBinding = { [weak self] isHidden in
             DispatchQueue.main.async {
                 self?.emptyView.isHidden = isHidden

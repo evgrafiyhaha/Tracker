@@ -8,9 +8,9 @@ final class TrackerService: UserTrackersServiceProtocol {
     private(set) var completedTrackers: [TrackerRecord] = []
 
     // MARK: - Private Properties
-    private let trackerStore: TrackerStorable
-    private let trackerCategoryStore: TrackerCategoryStorable
-    private let trackerRecordStore: TrackerRecordStorable
+    private let trackerStore: TrackerStoreProtocol
+    private let trackerCategoryStore: TrackerCategoryStoreProtocol
+    private let trackerRecordStore: TrackerRecordStoreProtocol
 
     // MARK: - Init
     init(

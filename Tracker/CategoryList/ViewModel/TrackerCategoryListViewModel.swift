@@ -19,10 +19,11 @@ final class TrackerCategoryListViewModel {
     var categoryStateBinding: Binding<Bool>?
     var categoryBinding: (() -> Void)?
     var navigateToCreateCategory: (() -> Void)?
+    var navigateBack: (() -> Void)?
 
     // MARK: - Private Properties
     private var selectedCategory: TrackerCategoryViewModel?
-    private var trackerCategoryStore: TrackerCategoryStorable
+    private var trackerCategoryStore: TrackerCategoryStoreProtocol
     private var categoryState: CategoryState = .empty {
         didSet {
             if categoryState == .containsItems {
@@ -40,7 +41,7 @@ final class TrackerCategoryListViewModel {
     }
 
     // MARK: - Init
-    init(trackerCategoryStore: TrackerCategoryStorable = TrackerCategoryStore.shared) {
+    init(trackerCategoryStore: TrackerCategoryStoreProtocol = TrackerCategoryStore.shared) {
         self.trackerCategoryStore = trackerCategoryStore
         self.categories = getCategoriesFromStore()
         updateCategoryState()
@@ -54,6 +55,7 @@ final class TrackerCategoryListViewModel {
         categories[index].isSelected = true
         categoryBinding?()
         delegate?.didSelectCategory(categories[index].trackerCategory)
+        navigateBack?()
     }
 
     func onButtonTapped() {
