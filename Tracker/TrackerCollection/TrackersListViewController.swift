@@ -89,7 +89,7 @@ final class TrackersListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        
+
         userTrackersService.delegate = self
         setupNavBarItems()
         setupSubviews()
@@ -107,8 +107,8 @@ final class TrackersListViewController: UIViewController {
         view.addSubview(searchBar)
         errorView.addSubview(starImageView)
         errorView.addSubview(errorLabel)
-
     }
+    
     private func setupConstraints() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -152,6 +152,9 @@ final class TrackersListViewController: UIViewController {
     }
     
     private func setupNavBarItems() {
+        navigationController?.navigationBar.barStyle = .default
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
         let blackColor: UIColor = .ypBlack
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
