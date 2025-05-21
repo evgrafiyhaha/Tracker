@@ -17,5 +17,4 @@ protocol UserTrackersServiceProtocol {
     func togglePin(trackerId: UUID)
     func hasPinned() -> Bool
     func getCategory(of tracker: Tracker) -> TrackerCategory?
-    func setAll()
 }

@@ -30,7 +30,6 @@ final class TrackerService: UserTrackersServiceProtocol {
 
         self.categories = trackerCategoryStore.categories
         pin()
-        print(categories)
         self.completedTrackers = trackerRecordStore.trackerRecords
     }
 
@@ -46,6 +45,7 @@ final class TrackerService: UserTrackersServiceProtocol {
     }
 
     func getAllCategories() -> [TrackerCategory] {
+        syncCategories()
         pin()
         return categories
     }
@@ -130,11 +130,6 @@ final class TrackerService: UserTrackersServiceProtocol {
         return category
     }
 
-    func setAll() {
-        pin()
-        notifyUpdate()
-    }
-
     // MARK: - Private Methods
     private func syncCategories() {
         categories = trackerCategoryStore.categories
@@ -144,24 +139,31 @@ final class TrackerService: UserTrackersServiceProtocol {
         let pinnedIDs = userDefaultsStorage.pinnedTrackers
         let allCategories = trackerCategoryStore.categories
 
-        let filtered = allCategories.map { category in
+        var filtered = allCategories.map { category in
             TrackerCategory(
                 name: category.name,
                 trackers: category.trackers.filter { !pinnedIDs.contains($0.id) }
             )
         }
 
-        var result = filtered
-
         if !pinnedIDs.isEmpty {
             let pinned = allCategories
                 .flatMap { $0.trackers }
                 .filter { pinnedIDs.contains($0.id) }
 
-            result.insert(TrackerCategory(name: L10n.Trackers.pinned, trackers: pinned), at: 0)
+            filtered.insert(TrackerCategory(name: L10n.Trackers.pinned, trackers: pinned), at: 0)
         }
 
-        categories = result
+        let currentTrackersIDs = categories.flatMap(\.trackers).map(\.id)
+
+        let answer = filtered.map { category in
+            TrackerCategory(
+                name: category.name,
+                trackers: category.trackers.filter { currentTrackersIDs.contains($0.id)}
+            )
+
+        }
+        categories = answer
 
     }
 

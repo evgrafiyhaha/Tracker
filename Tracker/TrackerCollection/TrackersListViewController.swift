@@ -349,10 +349,6 @@ final class TrackersListViewController: UIViewController {
         }
     }
 
-    private func hasTrackers() -> Bool {
-        return false
-    }
-
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
@@ -378,6 +374,7 @@ final class TrackersListViewController: UIViewController {
         if let searchText = searchBar.text, !searchText.isEmpty {
             setSearchedTrackers(for: searchText)
         } else {
+            userTrackersService.setFilteredCategories(categoriesForDate(currentDate))
             filter()
             emptyView.isHidden = true
             collectionView.reloadData()
