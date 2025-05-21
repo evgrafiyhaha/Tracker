@@ -96,6 +96,6 @@ enum L10n {
         static let all = NSLocalizedString("filters.all", comment: "")
         static let today = NSLocalizedString("filters.today", comment: "")
         static let completed = NSLocalizedString("filters.completed", comment: "")
-        static let incompleted = NSLocalizedString("filters.incompleted", comment: "")
+        static let uncompleted = NSLocalizedString("filters.uncompleted", comment: "")
     }
 }

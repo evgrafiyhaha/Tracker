@@ -336,7 +336,7 @@ final class TrackersListViewController: UIViewController {
             setTrackersForDayOfWeek(selectedDay)
         case .completed:
             setCompletedTrackers(for: currentDate)
-        case .incompleted:
+        case .uncompleted:
             setUncompletedTrackers(for: currentDate)
         }
     }
@@ -601,7 +601,7 @@ extension TrackersListViewController: FiltersProtocol {
             setTrackersForDayOfWeek(selectedDay)
         case .completed:
             setCompletedTrackers(for: currentDate)
-        case .incompleted:
+        case .uncompleted:
             setUncompletedTrackers(for: currentDate)
         }
     }

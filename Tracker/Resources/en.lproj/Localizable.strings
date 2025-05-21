@@ -70,5 +70,5 @@
 "filters.all" = "All Trackers";
 "filters.today" = "Filters for today";
 "filters.completed" = "Completed Trackers";
-"filters.incompleted" = "Incompleted Trackers";
+"filters.uncompleted" = "Uncompleted Trackers";
 

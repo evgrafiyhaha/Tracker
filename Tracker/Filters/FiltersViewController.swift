@@ -8,7 +8,7 @@ enum Filter: CaseIterable {
     case all
     case today
     case completed
-    case incompleted
+    case uncompleted
 
     var name: String {
         switch self {
@@ -18,8 +18,8 @@ enum Filter: CaseIterable {
             return L10n.Filters.today
         case .completed:
             return L10n.Filters.completed
-        case .incompleted:
-            return L10n.Filters.incompleted
+        case .uncompleted:
+            return L10n.Filters.uncompleted
         }
     }
 }
