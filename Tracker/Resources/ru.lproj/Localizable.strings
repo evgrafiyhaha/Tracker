@@ -1,0 +1,73 @@
+"general.cancel" = "Отменить";
+"general.create" = "Создать";
+"general.update" = "Редактировать";
+"general.done" = "Готово";
+"general.pin" = "Закрепить";
+"general.unpin" = "Открепить";
+"general.save" = "Сохранить";
+"general.delete" = "Удалить";
+
+"onboarding.blueTitle" = "Отслеживайте только то, что хотите";
+"onboarding.redTitle" = "Даже если это \nне литры воды и йога";
+"onboarding.button" = "Вот это технологии!";
+
+"trackers.title" = "Трекеры";
+"trackers.emptyState" = "Что будем отслеживать?";
+"trackers.emptySearch" = "Ничего не найдено";
+"trackers.search" = "Поиск";
+"trackers.filters" = "Фильтры";
+"trackers.pinned" = "Закрепленные";
+
+"statistics.title" = "Статистика";
+"statistics.emptyState" = "Анализировать пока нечего";
+"statistics.bestPeriod" = "Лучший период";
+"statistics.idealDays" = "Идеальные дни";
+"statistics.trackersCompleted" = "Трекеров завершено";
+"statistics.avg" = "Среднее значение";
+
+"tabbar.trackers" = "Трекеры";
+"tabbar.statistics" = "Статистика";
+
+"typeChoice.title" = "Создание трекера";
+"typeChoice.habit" = "Привычка";
+"typeChoice.irregular" = "Нерегулярное событие";
+
+"creation.habitTitle" = "Новая привычка";
+"creation.irregularTitle" = "Новое нерегулярное событие";
+"creation.category" = "Категория";
+"creation.schedule" = "Расписание";
+"creation.placeholder" = "Введите название трекера";
+"creation.emoji" = "Emoji";
+"creation.color" = "Цвет";
+"creation.everyDay" = "Каждый день";
+"creation.error" = "Ограничение 38 символов";
+
+"categories.title" = "Категория";
+"categories.create" = "Добавить категорию";
+"categories.placeholder" = "Введите название категории";
+"categories.new" = "Новая категория";
+"categories.emptyState" = "Привычки и события можно \nобъединить по смыслу";
+
+"weekdayFull.monday" = "Понедельник";
+"weekdayFull.tuesday" = "Вторник";
+"weekdayFull.wednesday" = "Среда";
+"weekdayFull.thursday" = "Четверг";
+"weekdayFull.friday" = "Пятница";
+"weekdayFull.saturday" = "Суббота";
+"weekdayFull.sunday" = "Воскресенье";
+
+"weekdayShort.monday" = "Пн";
+"weekdayShort.tuesday" = "Вт";
+"weekdayShort.wednesday" = "Ср";
+"weekdayShort.thursday" = "Чт";
+"weekdayShort.friday" = "Пт";
+"weekdayShort.saturday" = "Сб";
+"weekdayShort.sunday" = "Вс";
+
+"trackerActions.warning" = "Уверены что хотите удалить трекер?";
+"trackerActions.updatingTitle" = "Редактирование привычки";
+
+"filters.all" = "Все трекеры";
+"filters.today" = "Трекеры на сегодня";
+"filters.completed" = "Завершенные";
+"filters.incompleted" = "Не завершенные";

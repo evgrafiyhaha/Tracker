@@ -1,0 +1,74 @@
+"general.cancel" = "Cancel";
+"general.create" = "Create";
+"general.update" = "Edit";
+"general.done" = "Done";
+"general.pin" = "Pin";
+"general.unpin" = "Unpin";
+"general.save" = "Save";
+"general.delete" = "Delete";
+
+"onboarding.blueTitle" = "Track only what you want";
+"onboarding.redTitle" = "Even if it’s not \nwater or yoga";
+"onboarding.button" = "What a technology!";
+
+"trackers.title" = "Trackers";
+"trackers.emptyState" = "What are we going to track?";
+"trackers.emptySearch" = "Nothing found";
+"trackers.search" = "Search";
+"trackers.filters" = "Filters";
+"trackers.pinned" = "Pinned";
+
+"statistics.title" = "Statistics";
+"statistics.emptyState" = "Nothing to analyze yet";
+"statistics.bestPeriod" = "Best period";
+"statistics.idealDays" = "Ideal days";
+"statistics.trackersCompleted" = "Trackers completed";
+"statistics.avg" = "Average value";
+
+"tabbar.trackers" = "Trackers";
+"tabbar.statistics" = "Statistics";
+
+"typeChoice.title" = "New Tracker";
+"typeChoice.habit" = "Habit";
+"typeChoice.irregular" = "Event";
+
+"creation.habitTitle" = "New Habit";
+"creation.irregularTitle" = "New Event";
+"creation.category" = "Category";
+"creation.schedule" = "Schedule";
+"creation.placeholder" = "Enter tracker name";
+"creation.emoji" = "Emoji";
+"creation.color" = "Color";
+"creation.everyDay" = "Every Day";
+"creation.error" = "Limit of 38 characters";
+
+"categories.title" = "Category";
+"categories.create" = "Add Category";
+"categories.placeholder" = "Enter category name";
+"categories.new" = "New Category";
+"categories.emptyState" = "Habits and events can be \ngrouped by meaning";
+
+"weekdayFull.monday" = "Monday";
+"weekdayFull.tuesday" = "Tuesday";
+"weekdayFull.wednesday" = "Wednesday";
+"weekdayFull.thursday" = "Thursday";
+"weekdayFull.friday" = "Friday";
+"weekdayFull.saturday" = "Saturday";
+"weekdayFull.sunday" = "Sunday";
+
+"weekdayShort.monday" = "Mon";
+"weekdayShort.tuesday" = "Tue";
+"weekdayShort.wednesday" = "Wed";
+"weekdayShort.thursday" = "Thu";
+"weekdayShort.friday" = "Fri";
+"weekdayShort.saturday" = "Sat";
+"weekdayShort.sunday" = "Sun";
+
+"trackerActions.warning" = "Are you sure you want to delete the tracker?";
+"trackerActions.updatingTitle" = "Editing Habit";
+
+"filters.all" = "All Trackers";
+"filters.today" = "Filters for today";
+"filters.completed" = "Completed Trackers";
+"filters.incompleted" = "Incompleted Trackers";
+

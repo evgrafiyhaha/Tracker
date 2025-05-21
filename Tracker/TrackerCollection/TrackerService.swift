@@ -1,6 +1,11 @@
 import Foundation
 
+extension Notification.Name {
+    static let trackersDataUpdated = Notification.Name("trackersDataUpdated")
+}
+
 final class TrackerService: UserTrackersServiceProtocol {
+    
     // MARK: - Public Properties
     weak var delegate: UserTrackersServiceDelegate?
 
@@ -11,18 +16,21 @@ final class TrackerService: UserTrackersServiceProtocol {
     private let trackerStore: TrackerStoreProtocol
     private let trackerCategoryStore: TrackerCategoryStoreProtocol
     private let trackerRecordStore: TrackerRecordStoreProtocol
+    private let userDefaultsStorage = UserDefaultsStorage()
 
     // MARK: - Init
     init(
         trackerStore: TrackerStore = TrackerStore(),
         trackerCategoryStore: TrackerCategoryStore = TrackerCategoryStore.shared,
-        trackerRecordStore: TrackerRecordStore = TrackerRecordStore()
+        trackerRecordStore: TrackerRecordStore = TrackerRecordStore.shared
     ) {
         self.trackerStore = trackerStore
         self.trackerCategoryStore = trackerCategoryStore
         self.trackerRecordStore = trackerRecordStore
 
         self.categories = trackerCategoryStore.categories
+        pin()
+        print(categories)
         self.completedTrackers = trackerRecordStore.trackerRecords
     }
 
@@ -38,16 +46,40 @@ final class TrackerService: UserTrackersServiceProtocol {
     }
 
     func getAllCategories() -> [TrackerCategory] {
-        return trackerCategoryStore.categories
+        pin()
+        return categories
     }
 
     func addTracker(tracker: Tracker, to category: TrackerCategory) {
         do {
             try trackerStore.add(tracker, to: category)
             syncCategories()
+            pin()
             notifyUpdate()
         } catch {
             print("[TrackerService.addTracker]: Ошибка при добавлении трекера — \(error)")
+        }
+    }
+
+    func deleteTracker(_ tracker: Tracker) {
+        do {
+            try trackerStore.delete(tracker)
+            syncCategories()
+            pin()
+            notifyUpdate()
+        } catch {
+            print("[TrackerService.deleteTracker]: Ошибка при удалении трекера — \(error)")
+        }
+    }
+
+    func updateTracker(_ tracker: Tracker,with trackerCategory: TrackerCategory) {
+        do {
+            try trackerStore.update(tracker, with: trackerCategory)
+            syncCategories()
+            pin()
+            notifyUpdate()
+        } catch {
+            print("[TrackerService.updateTracker]: Ошибка при обновлении трекера — \(error)")
         }
     }
 
@@ -55,6 +87,7 @@ final class TrackerService: UserTrackersServiceProtocol {
         do {
             try trackerRecordStore.add(record)
             syncCompletedTrackers()
+            NotificationCenter.default.post(name: .trackersDataUpdated, object: nil)
         } catch {
             print("[TrackerService.addTrackerRecord]: Ошибка при добавлении записи — \(error)")
         }
@@ -63,6 +96,7 @@ final class TrackerService: UserTrackersServiceProtocol {
     func removeTrackerRecord(_ record: TrackerRecord, forDate date: Date, using calendar: Calendar) {
         trackerRecordStore.delete(with: record.trackerId, on: date, using: calendar)
         syncCompletedTrackers()
+        NotificationCenter.default.post(name: .trackersDataUpdated, object: nil)
     }
 
     func setFilteredCategories(_ categories: [TrackerCategory]) {
@@ -73,9 +107,62 @@ final class TrackerService: UserTrackersServiceProtocol {
         return categories.flatMap { $0.trackers }.count
     }
 
+    func isPinned(trackerId: UUID) -> Bool {
+        return userDefaultsStorage.pinnedTrackers.contains(trackerId)
+    }
+
+    func togglePin(trackerId: UUID) {
+        if !isPinned(trackerId: trackerId) {
+            userDefaultsStorage.pinTracker(trackerId)
+        } else {
+            userDefaultsStorage.unpinTracker(trackerId)
+        }
+        pin()
+        notifyUpdate()
+    }
+
+    func hasPinned() -> Bool {
+        return !userDefaultsStorage.pinnedTrackers.isEmpty
+    }
+
+    func getCategory(of tracker: Tracker) -> TrackerCategory? {
+        let category = trackerCategoryStore.categories.first(where: { $0.trackers.contains(where: { $0.id == tracker.id }) })
+        return category
+    }
+
+    func setAll() {
+        pin()
+        notifyUpdate()
+    }
+
     // MARK: - Private Methods
     private func syncCategories() {
         categories = trackerCategoryStore.categories
+    }
+
+    private func pin() {
+        let pinnedIDs = userDefaultsStorage.pinnedTrackers
+        let allCategories = trackerCategoryStore.categories
+
+        let filtered = allCategories.map { category in
+            TrackerCategory(
+                name: category.name,
+                trackers: category.trackers.filter { !pinnedIDs.contains($0.id) }
+            )
+        }
+
+        var result = filtered
+
+        if !pinnedIDs.isEmpty {
+            let pinned = allCategories
+                .flatMap { $0.trackers }
+                .filter { pinnedIDs.contains($0.id) }
+
+            result.insert(TrackerCategory(name: L10n.Trackers.pinned, trackers: pinned), at: 0)
+        }
+
+        categories = result
+
     }
 
     private func syncCompletedTrackers() {
