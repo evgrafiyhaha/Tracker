@@ -152,10 +152,11 @@ final class TrackerUpdateViewController: UIViewController {
         navigationItem.title = L10n.TrackerActions.updatingTitle
         setupSubviews()
         setupConstraints()
+        saveButtonAvailabilityCheck()
     }
 
     // MARK: - Private Methods
-    private func createButtonAvailabilityCheck() {
+    private func saveButtonAvailabilityCheck() {
         let isInputValid = trackerNameTextField.hasText && schedule.isEmpty == false
         saveButton.isEnabled = isInputValid
         saveButton.setTitleColor(isInputValid ? .ypWhite : .ypAlwaysWhite, for: .normal)
@@ -306,7 +307,7 @@ final class TrackerUpdateViewController: UIViewController {
 
     @objc
     private func textFieldDidChange() {
-        createButtonAvailabilityCheck()
+        saveButtonAvailabilityCheck()
     }
 
     @objc
@@ -369,7 +370,7 @@ extension TrackerUpdateViewController: UITableViewDelegate, UITableViewDataSourc
 extension TrackerUpdateViewController: ScheduleViewControllerDelegate {
     func didSelectDays(_ days: Set<Day>) {
         schedule = days
-        createButtonAvailabilityCheck()
+        saveButtonAvailabilityCheck()
         tableView.reloadData()
     }
 }
@@ -444,7 +445,7 @@ extension TrackerUpdateViewController: UICollectionViewDelegateFlowLayout {
                 cell.select()
             }
         }
-        createButtonAvailabilityCheck()
+        saveButtonAvailabilityCheck()
     }
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if collectionView == emojiCollectionView {
@@ -465,7 +466,7 @@ extension TrackerUpdateViewController: UICollectionViewDelegateFlowLayout {
 extension TrackerUpdateViewController: TrackerCategoryListViewModelDelegate {
     func didSelectCategory(_ category: TrackerCategory) {
         self.category = category
-        createButtonAvailabilityCheck()
+        saveButtonAvailabilityCheck()
         tableView.reloadData()
     }
 }

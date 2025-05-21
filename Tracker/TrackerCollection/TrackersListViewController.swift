@@ -236,9 +236,12 @@ final class TrackersListViewController: UIViewController {
     }
 
     private func categoriesForDate(_ date: Date) -> [TrackerCategory] {
-        userTrackersService.getAllCategories().compactMap { category in
+        guard let day = date.dayOfWeek(calendar: calendar) else {
+            return []
+        }
+        return userTrackersService.getAllCategories().compactMap { category in
             let trackersForDate = category.trackers.filter {
-                $0.schedule.contains(date.dayOfWeek(calendar: calendar)!)
+                $0.schedule.contains(day)
             }
 
             return trackersForDate.isEmpty ? nil : TrackerCategory(name: category.name, trackers: trackersForDate)
