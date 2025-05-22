@@ -64,7 +64,7 @@ final class TrackerService: UserTrackersServiceProtocol {
     func deleteTracker(_ tracker: Tracker) {
         do {
             try trackerStore.delete(tracker)
-            syncCategories()
+            syncDeletion(tracker: tracker)
             pin()
             notifyUpdate()
         } catch {
@@ -75,7 +75,7 @@ final class TrackerService: UserTrackersServiceProtocol {
     func updateTracker(_ tracker: Tracker,with trackerCategory: TrackerCategory) {
         do {
             try trackerStore.update(tracker, with: trackerCategory)
-            syncCategories()
+            syncUpdate(tracker: tracker)
             pin()
             notifyUpdate()
         } catch {
@@ -133,6 +133,26 @@ final class TrackerService: UserTrackersServiceProtocol {
     // MARK: - Private Methods
     private func syncCategories() {
         categories = trackerCategoryStore.categories
+    }
+
+    private func syncUpdate(tracker: Tracker) {
+        let updated = categories.map { category in
+             TrackerCategory(
+                name: category.name,
+                trackers: category.trackers.filter{$0.id != tracker.id} + [tracker]
+            )
+        }
+        categories = updated
+    }
+
+    private func syncDeletion(tracker: Tracker) {
+        let updated = categories.map { category in
+             TrackerCategory(
+                name: category.name,
+                trackers: category.trackers.filter{$0.id != tracker.id}
+            )
+        }
+        categories = updated
     }
 
     private func pin() {
