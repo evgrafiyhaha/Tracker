@@ -1,5 +1,7 @@
 import UIKit
 enum Constants {
+
+    // MARK: - Static Properties
     static let colors: [UIColor] = [
         .selection1, .selection2, .selection3, .selection4, .selection5, .selection6,
         .selection7, .selection8, .selection9, .selection10, .selection11, .selection12,

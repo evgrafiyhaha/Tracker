@@ -12,7 +12,10 @@ final class CategoryCreationViewController: UIViewController {
     // MARK: - Private Properties
     private lazy var categoryNameTextField: UITextField = {
         let textField = PaddedTextField()
-        textField.placeholder = "Введите название категории"
+        textField.attributedPlaceholder = NSAttributedString(
+            string: L10n.Creation.placeholder,
+            attributes: [.foregroundColor: UIColor.ypGray]
+        )
         textField.backgroundColor = .ypBackground
         textField.layer.cornerRadius = 16
         textField.clearButtonMode = .whileEditing
@@ -28,8 +31,8 @@ final class CategoryCreationViewController: UIViewController {
 
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
-        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitle(L10n.General.done, for: .normal)
+        button.setTitleColor(.ypAlwaysWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGray
         button.addTarget(self, action: #selector(onButtonTapped), for: .touchUpInside)
@@ -42,7 +45,7 @@ final class CategoryCreationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.tintColor = .ypBlack
-        navigationItem.title = "Новая категория"
+        navigationItem.title = L10n.Categories.new
 
         setupSubviews()
         setupConstraints()
@@ -75,6 +78,7 @@ final class CategoryCreationViewController: UIViewController {
     private func createButtonAvailabilityCheck() {
         let isInputValid = categoryNameTextField.hasText
         createButton.isEnabled = isInputValid
+        createButton.setTitleColor(isInputValid ? .ypWhite : .ypAlwaysWhite, for: .normal)
         createButton.backgroundColor = isInputValid ? .ypBlack : .ypGray
     }
 
