@@ -26,7 +26,6 @@ final class TrackersListViewController: UIViewController {
         case emptySearch
     }
     private var userTrackersService: UserTrackersServiceProtocol = TrackerService()
-    private let analyticsService = AnalyticsService()
     private var currentFilter: Filter = .all
     private lazy var cellWidth = ceil((UIScreen.main.bounds.width - sideInset * 2 - 10)/2)
     private let cellHeight: CGFloat = 148
@@ -127,12 +126,12 @@ final class TrackersListViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        analyticsService.reportEvent(event: "open", screen: "Main")
+        AnalyticsService.reportEvent(event: "open", screen: "Main")
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        analyticsService.reportEvent(event: "close", screen: "Main")
+        AnalyticsService.reportEvent(event: "close", screen: "Main")
     }
 
     // MARK: - Private Methods
@@ -360,7 +359,7 @@ final class TrackersListViewController: UIViewController {
 
     @objc
     private func plusButtonTapped() {
-        analyticsService.reportEvent(event: "click", screen: "Main", item: "add_track")
+        AnalyticsService.reportEvent(event: "click", screen: "Main", item: "add_track")
         let viewController = TrackerTypeChoiceViewController()
         viewController.delegate = self
         let navController = UINavigationController(rootViewController: viewController)
@@ -386,7 +385,7 @@ final class TrackersListViewController: UIViewController {
 
     @objc
     private func onButtonTapped() {
-        analyticsService.reportEvent(event: "click", screen: "Main", item: "filter")
+        AnalyticsService.reportEvent(event: "click", screen: "Main", item: "filter")
         let viewController = FiltersViewController()
         viewController.delegate = self
         viewController.currentFilter = currentFilter
@@ -497,7 +496,7 @@ extension TrackersListViewController: UserTrackersServiceDelegate {
 // MARK: - TrackerCollectionViewCellDelegate
 extension TrackersListViewController: TrackerCollectionViewCellDelegate {
     func delete(cell: TrackerCollectionViewCell) {
-        analyticsService.reportEvent(event: "click", screen: "Main", item: "delete")
+        AnalyticsService.reportEvent(event: "click", screen: "Main", item: "delete")
         let alertController = UIAlertController(
             title: nil,
             message: L10n.TrackerActions.warning,
@@ -525,7 +524,7 @@ extension TrackersListViewController: TrackerCollectionViewCellDelegate {
     }
 
     func update(cell: TrackerCollectionViewCell) {
-        analyticsService.reportEvent(event: "click", screen: "Main", item: "edit")
+        AnalyticsService.reportEvent(event: "click", screen: "Main", item: "edit")
         guard
             let tracker = cell.tracker,
             let category = userTrackersService.getCategory(of: tracker)
@@ -543,7 +542,7 @@ extension TrackersListViewController: TrackerCollectionViewCellDelegate {
     }
 
     func updateQuantity(cell: TrackerCollectionViewCell) {
-        analyticsService.reportEvent(event: "click", screen: "Main", item: "track")
+        AnalyticsService.reportEvent(event: "click", screen: "Main", item: "track")
         guard
             let trackerID = cell.trackerID,
             let schedule = cell.schedule,
